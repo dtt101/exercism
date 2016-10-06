@@ -15,7 +15,9 @@ defmodule RunLengthEncoder do
 
   @spec decode(String.t) :: String.t
   def decode(string) do
-    String.split(string, ~r/\d/)
+    Regex.split(~r/(\d+\w?)/, string, [include_captures: true, trim: true])
+    |> Enum.map(fn(x) -> String.split_at(x, -1) end)
+    |> Enum.map_join("", fn(x) -> String.duplicate(elem(x, 1), String.to_integer(elem(x, 0))) end)
   end
 
   defp rle_from_list(s) do
