@@ -18,19 +18,19 @@ defmodule Phone do
   """
   @spec number(String.t) :: String.t
   def number(raw) do
-    Regex.replace(~r/\D/, raw, "")
+    cond do
+      Regex.match?(~r/[a-z]+/, raw) -> "0000000000"
+      true -> process_number(raw)
+    end
+  end
+
+  defp process_number(str) do
+    Regex.replace(~r/\D/, str, "")
     |> String.replace_leading("11", "1")
     |> check_length
   end
 
   defp check_length(str) do
-    cond do
-      String.length(str) != 10 -> "0000000000"
-      true -> str
-    end
-  end
-
-  defp valid(str) do
     cond do
       String.length(str) != 10 -> "0000000000"
       true -> str
@@ -56,6 +56,9 @@ defmodule Phone do
   """
   @spec area_code(String.t) :: String.t
   def area_code(raw) do
+    raw
+    |> String.replace_leading("11", "1")
+    |> String.slice(0..2)
   end
 
   @doc """
@@ -77,5 +80,12 @@ defmodule Phone do
   """
   @spec pretty(String.t) :: String.t
   def pretty(raw) do
+    raw
+    |> Phone.number
+    |> format
+  end
+
+  defp format(str) do
+    "(#{String.slice(str, 0..2)}) #{String.slice(str, 3..5)}-#{String.slice(str, 6..10)}"
   end
 end
